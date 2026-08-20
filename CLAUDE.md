@@ -41,8 +41,11 @@ npx tsx scripts/eval.ts     # سنجش کیفیت بازیابی
 
 ## حقایق پلتفرم (تأییدشده، حدس نزن)
 
-- baseUrl سرویس AI: `https://ai.liara.ir/api/v1/<projectId>` — سازگار با OpenAI
-- env varها طبق نمونه‌های رسمی لیارا: `BASE_URL` و `LIARA_API_KEY`
+- ارائه‌دهنده‌ی AI: **AvalAI** روی `https://api.avalai.ir/v1` — سازگار با
+  OpenAI، مدل‌ها **بدون** پیشوند provider (`gpt-5.6-luna` نه
+  `openai/gpt-5.6-luna`). دیپلوی همچنان کامل روی PaaS لیارا انجام می‌شه؛
+  فقط ارائه‌دهنده‌ی مدل فرق داره. (ADR-006)
+- env varها: `BASE_URL` و `AI_API_KEY`
 - کورپوس مستندات: `https://docs.liara.ir/all-links-llms.txt` → ۱۱۴۲ فایل `.md`
 - هر فایل `.md` با BOM شروع می‌شه و خط اولش `Original link: <url>` ـه
   → همین URL منبعِ citation ماست

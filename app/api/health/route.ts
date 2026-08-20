@@ -15,7 +15,7 @@ export async function GET() {
     uptimeSeconds: Math.round((Date.now() - startedAt) / 1000),
     // فقط پیکربندی‌شدن یا نشدن رو گزارش می‌کنیم، نه خود مقدار رو
     config: {
-      aiConfigured: Boolean(process.env.BASE_URL && process.env.LIARA_API_KEY),
+      aiConfigured: Boolean(process.env.BASE_URL && process.env.AI_API_KEY),
       index: "pending",
     },
     version: process.env.npm_package_version ?? "0.1.0",

@@ -176,11 +176,11 @@ async function embedAll(chunks: DocChunk[]): Promise<Float32Array> {
   const { embedMany } = await import("ai");
 
   const baseURL = process.env.BASE_URL;
-  const apiKey = process.env.LIARA_API_KEY;
+  const apiKey = process.env.AI_API_KEY;
   const modelId = process.env.MODEL_EMBED ?? "openai/text-embedding-3-small";
   if (!baseURL || !apiKey) {
     throw new Error(
-      "BASE_URL و LIARA_API_KEY تنظیم نشدن. .env.local رو پر کن، یا با --chunks-only اجرا کن.",
+      "BASE_URL و AI_API_KEY تنظیم نشدن. .env.local رو پر کن، یا با --chunks-only اجرا کن.",
     );
   }
 
