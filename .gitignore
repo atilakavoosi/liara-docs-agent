@@ -47,3 +47,10 @@ next-env.d.ts
 
 # ingestion disk cache
 .cache/
+
+# فایل‌های داخلیِ توسعه با ایجنت هوش مصنوعی — برای استفاده‌ی خودم می‌مونن
+# رو دیسک، ولی هیچ‌وقت وارد ریپو (و از اونجا گیت‌هاب) نمی‌شن
+CLAUDE.md
+TASKS.md
+PROGRESS.md
+docs/FEATURE_IDEAS.md
