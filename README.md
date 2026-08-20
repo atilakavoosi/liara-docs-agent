@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# لیارا یار
 
-## Getting Started
+دستیار agentic برای مستندات لیارا — چالش ۱ هکاتون Vibe Coding (استارکوچ × لیارا).
 
-First, run the development server:
+به‌جای یک جعبه‌ی جستجوی معمولی، سؤال کاربر رو می‌گیره، در ۱۱۴۲ سند رسمی
+`docs.liara.ir` جستجوی هیبرید (BM25 + برداری) انجام می‌ده، وقتی سؤال مبهمه
+جای حدس‌زدن سؤال تکمیلی می‌پرسه، از روی لاگ خطای واقعی عیب‌یابی می‌کنه، و هر
+جمله‌ی پاسخ رو با ارجاع به URL واقعی مستندات نشون می‌ده — نه فقط لینک تحویل
+می‌ده، بلکه کار عیب‌یابی رو تا حد ممکن خودش انجام می‌ده.
+
+> 🔗 **دمو زنده:** _(بعد از دیپلوی روی لیارا اینجا اضافه می‌شه)_
+> 🎥 **ویدیوی دمو:** _(اینجا اضافه می‌شه)_
+
+## چرا این‌جوری طراحی شد
+
+لیارا صورت‌مسئله رو «جستجوی بهتر در مستندات» گذاشته. ولی یک کاربر که تایپ
+می‌کنه «دیپلویم ارور خورد» یک کوئری جستجو نداره — یک **لاگ** و یک **هدف**
+داره. جزئیات کامل تحلیل مسئله، کاربر هدف، و نقشه‌ی معیار داوری → قابلیت در
+[`docs/PROJECT.md`](./docs/PROJECT.md).
+
+## اسکرین‌شات
+
+| حالت خالی | یک مکالمه‌ی واقعی |
+|---|---|
+| ![empty state](./docs/screenshots/app-empty-light.png) | ![conversation](./docs/screenshots/app-conversation.png) |
+
+| دارک‌مود | داشبورد `/admin` |
+|---|---|
+| ![dark mode](./docs/screenshots/app-empty-dark.png) | ![admin](./docs/screenshots/admin-dashboard.png) |
+
+## قابلیت‌های agentic
+
+مدل به‌جای یک پاسخ تک‌مرحله‌ای، تا ۶ گام می‌تونه از ابزارهای زیر استفاده کنه
+(`lib/ai/tools.ts`):
+
+| ابزار | کار |
+|---|---|
+| `searchDocs` | بازیابی هیبرید (BM25 + برداری + RRF) با فیلتر اختیاری سرویس/پلتفرم |
+| `askClarification` | وقتی intent مبهمه، به‌جای حدس، سؤال تکمیلی + گزینه می‌پرسه (UI مکث می‌کنه تا کاربر انتخاب کنه) |
+| `diagnoseError` | لاگ خطا/build log می‌گیره، کد خطا رو تشخیص می‌ده، سند منطبق رو پیدا می‌کنه |
+| `generateConfig` | `liara.json` / Dockerfile متناسب با استک کاربر می‌سازه |
+| `buildRunbook` | راهنمای گام‌به‌گام چک‌باکس‌دار |
+| `draftSupportTicket` | وقتی مطمئن نیست، به‌جای توهم‌زدن، پیش‌نویس تیکت با خلاصه‌ی گفتگو می‌سازه (صریحاً «ثبت نشده» — کاربر خودش می‌فرسته) |
+
+پروفایل کاربر (پلتفرم، سرویس در حال استفاده) از خود مکالمه استخراج و در
+`localStorage` نگه‌داری می‌شه و به رتبه‌بندی بازیابی و system prompt تزریق
+می‌شه — بدون نیاز به لاگین.
+
+## بازیابی
+
+- کورپوس: هر ۱۱۴۲ سند رسمی از `docs.liara.ir/all-links-llms.txt`، به ۲۳۵۸
+  تکه شکسته شده (`scripts/ingest.ts`)
+- **BM25** با نرمال‌سازی فارسی (یکسان‌سازی حروف عربی/فارسی، ارقام، نیم‌فاصله،
+  اعراب) + یک دیکشنری هم‌معنی دستی — کشف شد که «دیپلوی» در **صفر** سند وجود
+  داره چون مستندات «استقرار» می‌نویسه؛ بدون این نگاشت، رایج‌ترین سؤال ممکن
+  هیچ نتیجه‌ای نمی‌داد
+- **جستجوی برداری** (`text-embedding-3-small`) روی ایندکس استاتیک کامیت‌شده
+  در ریپو (نه دیتابیس — کورپوس ۵.۴ مگابایته، دلیل کامل در ADR-003)
+- ادغام با **Reciprocal Rank Fusion** + سقف تنوع منبع (حداکثر ۲ تکه از هر URL)
+- هر پاسخ با ارجاع درون‌متنی شماره‌دار [۱] به سند و URL واقعی
+
+## امنیت، مانیتورینگ، بهینه‌سازی هزینه
+
+- **Rate limiting** کشویی per-IP، قبل از parse شدن بدنه‌ی درخواست (تست شده
+  با یک burst واقعی ۱۵تایی — دقیقاً ۴۲۹ سر درخواست ۱۳ام)
+- **zod** روی تمام ورودی API، کلید AI فقط سمت سرور، بدون نشت stack trace
+  به کلاینت
+- **لاگ ساخت‌یافته‌ی JSON** با request ID و مصرف توکن هر درخواست
+- **کش معنایی** برای سؤال‌های تکراری (اولین پیام یک مکالمه، بدون پروفایل) —
+  با پروتکل رسمی AI SDK بازپخش می‌شه، نه یک فرمت دست‌ساز. آستانه‌ی cosine
+  عمداً محافظه‌کارانه (۰.۹۷) انتخاب شده؛ چرا و با چه اندازه‌گیری واقعی، در
+  [ADR-008](./docs/DECISIONS.md) مستنده
+- **مدل دوسطحی**: مدل قوی فقط برای پاسخ نهایی، سقف توکن هر درخواست
+- **داشبورد `/admin`** (پشت `ADMIN_TOKEN`): تعداد درخواست، نرخ اصابت کش،
+  توکن مصرفی، جدول درخواست‌های اخیر. هزینه‌ی تخمینی فقط وقتی نشون داده
+  می‌شه که قیمت واقعی مدل در env تنظیم شده باشه — به‌جای یک عدد ساختگی
+
+## استک
+
+Next.js 16 (App Router) + TypeScript + Tailwind v4 + shadcn/ui (RTL) ·
+Vercel AI SDK v6 + `@ai-sdk/openai` (سازگار با هر gateway سازگار با OpenAI،
+فعلاً [AvalAI](https://avalai.ir)) · بازیابی هیبرید دست‌نویس (بدون
+دیتابیس برداری) · فونت Vazirmatn (SIL OFL). چرا هر کدوم، در
+[`docs/DECISIONS.md`](./docs/DECISIONS.md) (ADR-001 تا ADR-008).
+
+## اجرای محلی
 
 ```bash
+npm install
+cp .env.example .env.local   # BASE_URL، AI_API_KEY، و بقیه رو پر کن
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+برای ساخت دوباره‌ی ایندکس بازیابی (به‌ندرت لازمه — ایندکس از قبل کامیت شده):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npx tsx scripts/ingest.ts
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Definition of Done — سناریوهای دمو
 
-## Learn More
+این پنج سناریو بدون دست‌کاری روی همین اپ اجرا می‌شن (جزئیات در
+[`docs/PROJECT.md`](./docs/PROJECT.md#۴-definition-of-done-برای-دمو)):
 
-To learn more about Next.js, take a look at the following resources:
+1. سؤال ساده → پاسخ مرحله‌به‌مرحله با لینک به سند واقعی
+2. سؤال مبهم («دیتابیسم وصل نمی‌شه») → سؤال تکمیلی، نه حدس
+3. پیست کردن یک لاگ خطای واقعی → تشخیص خطا + راه‌حل مستند
+4. پیگیری context («حالا همین رو برای Laravel بگو») → پاسخ بازنویسی‌شده برای استک جدید
+5. سؤالی که مستندات جوابش رو نداره → توهم نمی‌زنه، پیش‌نویس تیکت می‌سازه
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## محدودیت‌های شناخته‌شده (صادقانه)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- ایندکس بازیابی استاتیکه؛ به‌روزرسانی مستندات لیارا نیاز به اجرای دوباره‌ی
+  `ingest.ts` و کامیت داره — برای این حجم کورپوس منطقیه، ولی در مقیاس واقعی
+  باید به یک cron یا pgvector مهاجرت کنه (ADR-003)
+- کش معنایی فقط تکرار تقریباً دقیق سؤال رو می‌گیره، نه بازنویسی آزاد —
+  چرا در ADR-008
+- حافظه‌ی مدل فقط در طول یک مکالمه‌ست (تاریخچه‌ی همون تب/session)؛ هیچ
+  دیتابیس یا لاگینی برای نگه‌داشتن مکالمه بین جلسات وجود نداره — تصمیم
+  آگاهانه، نه محدودیت فنی (بخش «Explicitly Cut» در `docs/PROJECT.md`)
 
-## Deploy on Vercel
+## تیم
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+آتیلا — معماری، توسعه، UI/UX. بخشی از [هکاتون Vibe Coding استارکوچ](../README.md)
+(سه چالش مستقل، هر کدوم ریپوی خودش).
