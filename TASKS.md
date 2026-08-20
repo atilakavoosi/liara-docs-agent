@@ -1,32 +1,20 @@
 # TASKS
 
-> **آخرین جایی که موندیم:** بلوک ۰ تموم شد — اسکلت Next 16 با audit تمیز،
-> liara.json، health endpoint و فایل‌های حافظه ساخته شدن. قدم بعدی:
-> کامیت اول و **اثبات مسیر دیپلوی روی لیارا** قبل از نوشتن هر کد دیگه‌ای.
+> **آخرین جایی که موندیم:** بلوک ۳ (لایه‌ی Agentic) تموم شد و end-to-end
+> با AvalAI واقعی تست شد — کار می‌کنه: جستجو، runbook، ارجاع منابع، قدم
+> بعدی، همه صحیح. دیپلوی روی لیارا **هنوز انجام نشده** (حساب شارژ نشده،
+> به تصمیم آتیلا برای مرحله‌ی آخر موکول شد — ریسک شناخته‌شده و پذیرفته‌شده).
+> قدم بعدی: بلوک ۴ (UI) — چون بک‌اند کامل کار می‌کنه، حالا باید یک چت
+> واقعی روی صفحه ساخته بشه تا اصلاً قابل دمو باشه.
 
 ## In Progress
-- [ ] بلوک ۰ — دیپلوی اولیه روی لیارا و تأیید مسیر push → build → live
+- [ ] بلوک ۴ — UI (رابط چت)
 
 ## Backlog
 
-### بلوک ۱ — Ingestion (~۴ ساعت)
-- [ ] `scripts/ingest.ts`: گرفتن all-links، fetch با concurrency و retry، کش دیسکی
-- [ ] strip کردن BOM، جدا کردن `Original link:`، استخراج عنوان
-- [ ] chunk بر اساس heading با overlap + متادیتای service/platform
-- [ ] embed دسته‌ای و نوشتن `data/chunks.json` + `data/embeddings.bin`
-
-### بلوک ۲ — بازیابی (~۵ ساعت)
-- [ ] `lib/retrieval/normalize-fa.ts` — نرمال‌سازی فارسی
-- [ ] BM25 + جستجوی برداری + ادغام RRF
-- [ ] rerank با مدل ارزان
-- [ ] `scripts/eval.ts` + ~۳۰ سؤال طلایی، گزارش recall@5
-
-### بلوک ۳ — لایه‌ی Agentic (~۶ ساعت)
-- [ ] intent router با مدل ارزان
-- [ ] toolها: searchDocs, askClarification, diagnoseError, generateConfig,
-      buildRunbook, draftSupportTicket
-- [ ] `app/api/chat/route.ts` با streamText چندمرحله‌ای
-- [ ] پروفایل شخصی‌سازی و تزریقش به system prompt
+### بلوک ۲.۵ — eval عددی (باقی‌مونده از بلوک ۲، ~۱ ساعت)
+- [ ] `scripts/eval.ts` + ~۳۰ سؤال طلایی، گزارش recall@5 روی `hybridSearch`
+- [ ] rerank با مدل ارزان (اختیاری، اگه eval نشون داد لازمه)
 
 ### بلوک ۴ — UI (~۶ ساعت)
 - [ ] `docs/DESIGN.md` قبل از کد UI
@@ -48,6 +36,9 @@
 - [ ] `npm audit` نهایی + تست موبایل و تب ناشناس
 
 ## Done
+- [x] بلوک ۱ — ۱۱۴۲ سند دانلود، ۲۳۵۸ تکه، BM25 + جستجوی برداری + RRF
+- [x] بلوک ۳ — provider (AvalAI)، ۶ ابزار agentic، `/api/chat` با
+      streamText چندمرحله‌ای، rate limit، لاگ ساخت‌یافته — تست واقعی موفق
 - [x] فاز صفر: تحلیل مسئله، scope، DoD، نقشه‌ی معیار داوری → `docs/PROJECT.md`
 - [x] تحقیق پلتفرم: کشف کورپوس markdown، تأیید embedding، تأیید نسخه‌های Node
 - [x] اسکلت Next 16 + Tailwind + TS، `npm audit` تمیز
