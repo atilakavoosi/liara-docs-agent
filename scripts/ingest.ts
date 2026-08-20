@@ -185,7 +185,7 @@ async function embedAll(chunks: DocChunk[]): Promise<Float32Array> {
   }
 
   const provider = createOpenAI({ baseURL, apiKey });
-  const model = provider.textEmbeddingModel(modelId);
+  const model = provider.embeddingModel(modelId);
 
   const BATCH = 64;
   const vectors: number[][] = [];
