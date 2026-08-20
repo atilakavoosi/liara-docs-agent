@@ -1,26 +1,141 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * توکن‌های رنگ از CSS واقعی console.liara.ir استخراج شدن، نه حدس زده
+ * شدن. جزئیات و توجیه هر مقدار در docs/DESIGN.md.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 0.75rem;
+
+  --background: #fafafa;
+  --foreground: #171b18;
+
+  --card: #ffffff;
+  --card-foreground: #171b18;
+  --popover: #ffffff;
+  --popover-foreground: #171b18;
+
+  --primary: #0ea36f;
+  --primary-foreground: #f3fff9;
+
+  --secondary: #eef1ef;
+  --secondary-foreground: #171b18;
+
+  --muted: #f0f1ef;
+  --muted-foreground: #6b7169;
+
+  --accent: #e3f8ef;
+  --accent-foreground: #0b3d2c;
+
+  --destructive: #d6293a;
+  --destructive-foreground: #ffffff;
+
+  --border: #e4e7e3;
+  --input: #e4e7e3;
+  --ring: #22c08c;
+
+  /* برند: علاوه بر پالت استاندارد shadcn، دو توکن اختصاصی برای رنگ خام
+     برند لیارا و آبی ثانویه — برای نوار امتیاز منابع، نشانگر فعالیت
+     ابزار، و جاهایی که رنگ باید همون رنگ شناخته‌شده‌ی برند لیارا باشه. */
+  --brand-mint: #87fcc4;
+  --brand-mint-ink: #0ea36f;
+  --brand-blue: #0b93c4;
+  --brand-blue-fill: #28c1f5;
+
+  --success: #4f9e3a;
+  --success-foreground: #ffffff;
+  --warning: #a86a0a;
+  --warning-foreground: #ffffff;
+}
+
+.dark {
+  --background: #23252d;
+  --foreground: #f3f5f3;
+
+  --card: #2a2d36;
+  --card-foreground: #f3f5f3;
+  --popover: #2a2d36;
+  --popover-foreground: #f3f5f3;
+
+  --primary: #87fcc4;
+  --primary-foreground: #0b2e22;
+
+  --secondary: #343841;
+  --secondary-foreground: #e7e9e7;
+
+  --muted: #2e3138;
+  --muted-foreground: #9ca39d;
+
+  --accent: #33443c;
+  --accent-foreground: #b9f5d9;
+
+  --destructive: #ff6b78;
+  --destructive-foreground: #2a0508;
+
+  --border: #3a3e47;
+  --input: #3a3e47;
+  --ring: #87fcc4;
+
+  --brand-mint: #87fcc4;
+  --brand-mint-ink: #87fcc4;
+  --brand-blue: #57c5f7;
+  --brand-blue-fill: #57c5f7;
+
+  --success: #7ac65c;
+  --success-foreground: #0b2e22;
+  --warning: #edc46b;
+  --warning-foreground: #2a1c05;
 }
 
 @theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand-mint: var(--brand-mint);
+  --color-brand-mint-ink: var(--brand-mint-ink);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-fill: var(--brand-blue-fill);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-vazirmatn);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
+  }
 }
