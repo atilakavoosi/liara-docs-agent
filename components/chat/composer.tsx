@@ -80,7 +80,7 @@ export function Composer({
         )}
       </div>
       <p className="mx-auto mt-1.5 max-w-3xl text-center text-[11px] text-muted-foreground">
-        لیارایار بر اساس مستندات رسمی لیارا پاسخ می‌ده و همیشه منبع نشون می‌ده.
+        لیارا یار بر اساس مستندات رسمی لیارا پاسخ می‌ده و همیشه منبع نشون می‌ده.
       </p>
     </div>
   );

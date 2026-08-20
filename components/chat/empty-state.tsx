@@ -16,7 +16,7 @@ export function EmptyState({ onPick }: { onPick: (text: string) => void }) {
         <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/10">
           <span className="text-2xl">💬</span>
         </div>
-        <h2 className="text-xl font-bold text-foreground">با لیارایار شروع کن</h2>
+        <h2 className="text-xl font-bold text-foreground">با لیارا یار شروع کن</h2>
         <p className="mx-auto max-w-sm text-sm text-muted-foreground">
           هر سؤالی درباره‌ی سرویس‌های لیارا داری بپرس — از دیپلوی گرفته تا رفع خطا.
           هر پاسخ از مستندات رسمی میاد و منبعش رو نشون می‌ده.

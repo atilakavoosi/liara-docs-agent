@@ -19,7 +19,7 @@ export function Header({
         <div className="flex size-7 items-center justify-center rounded-lg bg-primary">
           <MessageSquareText className="size-4 text-primary-foreground" />
         </div>
-        <span className="text-[15px] font-bold text-foreground">لیارایار</span>
+        <span className="text-[15px] font-bold text-foreground">لیارا یار</span>
         <span className="hidden text-xs text-muted-foreground sm:inline">
           دستیار مستندات لیارا
         </span>

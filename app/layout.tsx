@@ -18,9 +18,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "لیارایار — دستیار هوشمند مستندات لیارا",
+  title: "لیارا یار — دستیار هوشمند مستندات لیارا",
   description:
-    "سؤالت رو درباره‌ی سرویس‌های لیارا بپرس؛ لیارایار با جستجو در مستندات، جواب دقیق و مستند می‌ده.",
+    "سؤالت رو درباره‌ی سرویس‌های لیارا بپرس؛ لیارا یار با جستجو در مستندات، جواب دقیق و مستند می‌ده.",
 };
 
 export default function RootLayout({
@@ -30,7 +30,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
-      <body className={`${vazirmatn.variable} ${jetbrainsMono.variable} antialiased`}>
+      <body
+        className={`${vazirmatn.variable} ${jetbrainsMono.variable} antialiased`}
+        suppressHydrationWarning
+      >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <TooltipProvider delayDuration={200}>
             {children}

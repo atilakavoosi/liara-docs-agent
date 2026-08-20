@@ -27,7 +27,7 @@ export function SourcesPanel({ messages }: { messages: UIMessage[] }) {
         <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
           <FolderTree className="size-8 text-muted-foreground/40" />
           <p className="text-sm text-muted-foreground">
-            وقتی لیارایار سند بازیابی کنه، فهرستش با لینک واقعی اینجا نمایش داده می‌شه.
+            وقتی لیارا یار سند بازیابی کنه، فهرستش با لینک واقعی اینجا نمایش داده می‌شه.
           </p>
         </div>
       ) : (
