@@ -16,6 +16,14 @@ import { EmptyState } from "./empty-state";
 import { MessageItem } from "./message-item";
 import { SourcesPanel } from "./sources-panel";
 import { collectSources } from "@/lib/citations";
+import {
+  type ConversationRecord,
+  deleteConversation,
+  listConversations,
+  loadConversation,
+  newConversationId,
+  saveConversation,
+} from "@/lib/conversation-store";
 
 interface Profile {
   platform: string | null;
@@ -40,9 +48,25 @@ export function ChatShell() {
   const [input, setInput] = useState("");
   const [profile, setProfile] = useState<Profile>({ platform: null, service: null });
   const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [conversationId, setConversationId] = useState<string>("");
+  const [conversations, setConversations] = useState<ConversationRecord[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => setProfile(loadProfile()), []);
+  useEffect(() => {
+    setProfile(loadProfile());
+    setConversationId(newConversationId());
+    setConversations(listConversations());
+  }, []);
+
+  // بعد از هر تغییر پیام‌ها (فقط وقتی استریم تموم شده)، گفتگوی فعلی توی
+  // localStorage ذخیره می‌شه — بدون این، «تاریخچه» فقط یک لیست خالیه.
+  // گفتگوی بدون پیام ذخیره نمی‌شه (چک داخل saveConversation).
+  useEffect(() => {
+    if (status !== "ready" || !conversationId) return;
+    if (messages.length === 0) return;
+    saveConversation(conversationId, messages);
+    setConversations(listConversations());
+  }, [status, messages, conversationId]);
 
   // بعد از هر پیام دستیار، اگه searchDocs/diagnoseError با platform یا
   // service مشخصی صدا زده شده، همون رو به‌عنوان پروفایل کاربر نگه می‌داریم
@@ -108,6 +132,30 @@ export function ChatShell() {
     [addToolResult, submit],
   );
 
+  const handleNewChat = useCallback(() => {
+    setMessages([]);
+    setConversationId(newConversationId());
+  }, [setMessages]);
+
+  const handleLoadConversation = useCallback(
+    (id: string) => {
+      const loaded = loadConversation(id);
+      if (!loaded) return;
+      setMessages(loaded);
+      setConversationId(id);
+    },
+    [setMessages],
+  );
+
+  const handleDeleteConversation = useCallback(
+    (id: string) => {
+      deleteConversation(id);
+      setConversations(listConversations());
+      if (id === conversationId) handleNewChat();
+    },
+    [conversationId, handleNewChat],
+  );
+
   const sources = messages.length
     ? collectSources([...messages].reverse().find((m) => m.role === "assistant") ?? messages[0])
     : [];
@@ -115,9 +163,12 @@ export function ChatShell() {
   return (
     <div className="flex h-dvh flex-col">
       <Header
-        onNewChat={() => setMessages([])}
+        onNewChat={handleNewChat}
         onToggleSources={() => setSourcesOpen(true)}
         hasSources={sources.length > 0}
+        conversations={conversations}
+        onLoadConversation={handleLoadConversation}
+        onDeleteConversation={handleDeleteConversation}
       />
 
       <div className="grid min-h-0 flex-1 lg:grid-cols-[1fr_320px]">
