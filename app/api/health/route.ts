@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getIndex } from "@/lib/index-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,13 +11,20 @@ const startedAt = Date.now();
  * عمداً هیچ جزئیات حساسی (کلید، مسیر فایل، استک‌تریس) برنمی‌گردونه.
  */
 export async function GET() {
+  const index = await getIndex();
+
   return NextResponse.json({
     status: "ok",
     uptimeSeconds: Math.round((Date.now() - startedAt) / 1000),
     // فقط پیکربندی‌شدن یا نشدن رو گزارش می‌کنیم، نه خود مقدار رو
     config: {
       aiConfigured: Boolean(process.env.BASE_URL && process.env.AI_API_KEY),
-      index: "pending",
+      index: {
+        chunks: index.chunks.length,
+        vectorsLoaded: index.vectors !== null,
+        // اگه بردارها لود نشدن، دلیلش رو هم برای دیباگ برمی‌گردونیم — استک‌تریس نیست، فقط پیام
+        vectorError: index.vectorError,
+      },
     },
     version: process.env.npm_package_version ?? "0.1.0",
   });
