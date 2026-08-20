@@ -42,14 +42,28 @@ export function reciprocalRankFusion(
   add(bm25, weights.bm25, "bm25Rank");
   add(vector, weights.vector, "vectorRank");
 
-  return [...fused.entries()]
-    .sort((a, b) => b[1].score - a[1].score)
-    .slice(0, topK)
-    .map(([docId, v]) => ({
-      chunk: chunks[docId],
-      score: v.score,
-      signals: { bm25Rank: v.bm25Rank, vectorRank: v.vectorRank },
-    }));
+  const ranked = [...fused.entries()].sort((a, b) => b[1].score - a[1].score);
+
+  // تنوع منبع: یک سند طولانی می‌تونه چند تکه‌ی هم‌رتبه در نتایج داشته
+  // باشه و کل topK رو با یک صفحه پر کنه (اندازه‌گیری شد: در آزمایش،
+  // ۵ از ۵ نتیجه‌ی اول همه از یک سند بودن). حداکثر ۲ تکه از هر sourceUrl
+  // مجاز می‌شه تا جواب از منابع مختلف تغذیه بشه.
+  const perSource = new Map<string, number>();
+  const diversified: typeof ranked = [];
+  for (const entry of ranked) {
+    const url = chunks[entry[0]].sourceUrl;
+    const count = perSource.get(url) ?? 0;
+    if (count >= 2) continue;
+    perSource.set(url, count + 1);
+    diversified.push(entry);
+    if (diversified.length >= topK) break;
+  }
+
+  return diversified.map(([docId, v]) => ({
+    chunk: chunks[docId],
+    score: v.score,
+    signals: { bm25Rank: v.bm25Rank, vectorRank: v.vectorRank },
+  }));
 }
 
 /**
