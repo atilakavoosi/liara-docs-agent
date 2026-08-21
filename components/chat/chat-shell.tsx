@@ -10,6 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 import { Header } from "./header";
 import { Composer } from "./composer";
 import { EmptyState } from "./empty-state";
@@ -31,6 +32,7 @@ interface Profile {
 }
 
 const PROFILE_KEY = "liarayar:profile";
+const SOURCES_COLLAPSED_KEY = "liarayar:sourcesPanelCollapsed";
 
 function loadProfile(): Profile {
   if (typeof window === "undefined") return { platform: null, service: null };
@@ -43,17 +45,28 @@ function loadProfile(): Profile {
   return { platform: null, service: null };
 }
 
+function loadSourcesCollapsed(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(SOURCES_COLLAPSED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 export function ChatShell() {
   const { messages, sendMessage, status, error, stop, clearError, setMessages, addToolResult } = useChat();
   const [input, setInput] = useState("");
   const [profile, setProfile] = useState<Profile>({ platform: null, service: null });
   const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [sourcesCollapsed, setSourcesCollapsed] = useState(false);
   const [conversationId, setConversationId] = useState<string>("");
   const [conversations, setConversations] = useState<ConversationRecord[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setProfile(loadProfile());
+    setSourcesCollapsed(loadSourcesCollapsed());
     setConversationId(newConversationId());
     setConversations(listConversations());
   }, []);
@@ -132,6 +145,28 @@ export function ChatShell() {
     [addToolResult, submit],
   );
 
+  // روی دسکتاپ دکمه‌ی «منابع» ستون کناری رو جمع/باز می‌کنه (وضعیتش در
+  // localStorage می‌مونه)؛ روی موبایل به‌جاش Sheet روی صفحه باز می‌شه —
+  // این دو حالت state جدا دارن چون معنای متفاوتی دارن (لایوت پایدار در
+  // برابر overlay گذرا)، وگرنه کلیک روی دسکتاپ Sheet رو هم باز می‌کرد.
+  const handleToggleSources = useCallback(() => {
+    const isDesktop =
+      typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches;
+    if (isDesktop) {
+      setSourcesCollapsed((prev) => {
+        const next = !prev;
+        try {
+          window.localStorage.setItem(SOURCES_COLLAPSED_KEY, next ? "1" : "0");
+        } catch {
+          // ذخیره نشدن این ترجیح اتفاق مهمی نیست
+        }
+        return next;
+      });
+    } else {
+      setSourcesOpen(true);
+    }
+  }, []);
+
   const handleNewChat = useCallback(() => {
     setMessages([]);
     setConversationId(newConversationId());
@@ -164,15 +199,17 @@ export function ChatShell() {
     <div className="flex h-dvh flex-col">
       <Header
         onNewChat={handleNewChat}
-        onToggleSources={() => setSourcesOpen(true)}
+        onToggleSources={handleToggleSources}
+        sourcesCollapsed={sourcesCollapsed}
         hasSources={sources.length > 0}
         conversations={conversations}
+        activeConversationId={conversationId}
         onLoadConversation={handleLoadConversation}
         onDeleteConversation={handleDeleteConversation}
       />
 
-      <div className="grid min-h-0 flex-1 lg:grid-cols-[1fr_320px]">
-        <div className="flex min-h-0 min-w-0 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <div className="flex-1 overflow-y-auto scroll-smooth">
             {messages.length === 0 ? (
               <EmptyState onPick={submit} />
@@ -218,8 +255,15 @@ export function ChatShell() {
           />
         </div>
 
-        <aside className="hidden border-s border-border lg:block">
-          <SourcesPanel messages={messages} />
+        <aside
+          className={cn(
+            "hidden shrink-0 overflow-hidden border-border transition-[width] duration-200 ease-in-out lg:block",
+            sourcesCollapsed ? "lg:w-0" : "lg:w-[320px] lg:border-s",
+          )}
+        >
+          <div className="h-full w-[320px]">
+            <SourcesPanel messages={messages} />
+          </div>
         </aside>
       </div>
 
